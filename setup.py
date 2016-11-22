@@ -27,6 +27,6 @@ setup(
     ],
     license="GPLv3+",
     url='https://github.com/boundlessgeo/qgissysinfo',
-    package_dir={'': '.'},
+    package_dir={'': 'src'},
     packages=['qgissysinfo',]
 )
