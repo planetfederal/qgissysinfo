@@ -109,9 +109,9 @@ def qgisMainInfo():
 
     info = os.linesep.join(info)
     info = info.format(qgisVersion="{} ({})".format(QGis.QGIS_VERSION, QGis.QGIS_DEV_VERSION),
-                       qgisPrefixPath=QgsApplication.prefixPath()
-                       qgisLibraryPath=QgsApplication.libraryPath()
-                       qgisLibExecPath=QgsApplication.libexecPath()
+                       qgisPrefixPath=QgsApplication.prefixPath(),
+                       qgisLibraryPath=QgsApplication.libraryPath(),
+                       qgisLibExecPath=QgsApplication.libexecPath(),
                        qgisAppState=appState
                       )
     return info
