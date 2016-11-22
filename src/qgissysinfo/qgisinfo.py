@@ -25,9 +25,11 @@ __copyright__ = '(C) 2016 Boundless, http://boundlessgeo.com'
 __revision__ = '$Format:%H$'
 
 import os
+import ConfigParser
 
 from qgis.core.contextmanagers import qgisapp
 from qgis.core import QGis, QgsApplication, QgsProviderRegistry
+from qgis.utils import plugin_paths
 
 from PyQt4.QtCore import QSettings
 
@@ -45,7 +47,7 @@ def qgisSettingsInfo():
             "{qgisRepos}",
            ]
 
-    settings = QSettings("QGIS", "QGIS")
+    settings = QSettings("QGIS", "QGIS2")
 
     repos = []
     settings.beginGroup(reposGroup)
@@ -69,12 +71,12 @@ def qgisSettingsInfo():
     return info
 
 
-def qgisPluginsInfo():
+def qgisProvidersInfo():
     """Returns information about various QGIS plugins (data providers,
     installed and active plugins, etc).
     """
-    info = ["QGIS plugins",
-            "------------",
+    info = ["QGIS providers",
+            "--------------",
             "Available QGIS data provider plugins:",
             "{dataProviders}",
            ]
@@ -117,5 +119,50 @@ def qgisMainInfo():
     return info
 
 
-def _listPlugins():
-    pass
+def qgisPluginsInfo():
+    cfg = ConfigParser.SafeConfigParser()
+
+    availablePythonPlugins = []
+    for p in plugin_paths:
+        for (root, dirs, files) in os.walk(p):
+            for d in dirs:
+                pluginPath = os.path.join(root, d)
+                version = cfg.read(os.path.join(pluginPath, 'metadata.txt'))
+                availablePythonPlugins.append("{} ({}) from {}".format(d, version, pluginPath))
+
+    availablePythonPlugins = os.linesep.join(["\t{}".format(i) for i in availablePythonPlugins])
+
+    activePythonPlugins = []
+    settings = QSettings("QGIS", "QGIS2")
+    settings.beginGroup("PythonPlugins")
+    for p in settings.childKeys():
+        if settings.value(p, True, type=bool):
+            activePythonPlugins.append(p)
+    settings.endGroup()
+    activePythonPlugins = os.linesep.join(["\t{}".format(i) for i in activePythonPlugins])
+
+    activeCppPlugins = []
+    settings = QSettings("QGIS", "QGIS2")
+    settings.beginGroup("Plugins")
+    for p in settings.childKeys():
+        if settings.value(p, True, type=bool):
+            activeCppPlugins.append(p)
+    settings.endGroup()
+    activeCppPlugins = os.linesep.join(["\t{}".format(i) for i in activeCppPlugins])
+
+    info = ["QGIS Plugins",
+            "------------",
+            "Available Python plugins:",
+            "{availPythonPlugins}",
+            "Active Python plugins:"
+            "{activePythonPlugins}",
+            "Active C++ plugins:"
+            "{activeCppPlugins}",
+           ]
+
+    info = os.linesep.join(info)
+    info = info.format(availPythonPlugins=,
+                       activePythonPlugins=,
+                       activeCppPlugins=
+                      )
+    return info
