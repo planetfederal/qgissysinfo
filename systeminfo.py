@@ -45,11 +45,23 @@ def pythonInfo():
             "------------------",
             "Python implementation: {implementation}"
             "Python version: {version} {build}",
+            "Python binary path: {binaryPath}",
+            "Prefix: {prefix}"
+            "Exec prefix: {execPrefix}",
+            "Module search paths:",
+            "{pythonPath}",
            ]
+
+    modulePaths = os.linesep.join(["\t{}".format(i) for i in sys.path])
+
     info = os.linesep.join(info)
     info = info.format(implementation = platform.python_implementation(),
                        version = platform.python_version(),
-                       build = platform.python_build()
+                       build = platform.python_build(),
+                       binaryPath = sys.executable,
+                       prefix = sys.prefix,
+                       execPrefix = sys.exec_prefix,
+                       pythonPath = modulePaths
                       )
     return info
 
