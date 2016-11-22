@@ -37,6 +37,19 @@ from PyQt4.QtCore import QSettings
 reposGroup = "/Qgis/plugin-repos"
 
 
+def allQgisInfo():
+    """Returns all possible QGIS information as plain text string.
+    """
+    info = [qgisMainInfo()]
+    info.append(qgisSettingsInfo())
+    info.append(qgisPluginsInfo())
+    try:
+        info.append(qgisProvidersInfo())
+    except:
+        pass
+
+    return "\n\n".join(info)
+
 def qgisSettingsInfo():
     """Returns various bits of information from QGIS settings.
     This information can be retrieved even if QGIS can not start.

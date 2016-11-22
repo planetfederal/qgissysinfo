@@ -50,6 +50,15 @@ from PyQt4.QtGui import QApplication, QImageReader
 from PyQt4.QtSql import QSqlDatabase
 
 
+def allSystemInfo()
+    """Returns all possible system information as plain text string.
+    """
+    info = [systemInfo()]
+    info.append(pythonInfo())
+    info.append(qtInfo())
+    return "\n\n".join(info)
+
+
 def systemInfo():
     """Returns general system information as plain text string.
     """
