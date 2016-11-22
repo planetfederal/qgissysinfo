@@ -174,8 +174,8 @@ def qgisPluginsInfo():
            ]
 
     info = os.linesep.join(info)
-    info = info.format(availPythonPlugins=,
-                       activePythonPlugins=,
-                       activeCppPlugins=
+    info = info.format(availPythonPlugins=availablePythonPlugins,
+                       activePythonPlugins=activePythonPlugins,
+                       activeCppPlugins=activeCppPlugins
                       )
     return info
