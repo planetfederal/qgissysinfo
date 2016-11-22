@@ -2,7 +2,7 @@
 
 """
 ***************************************************************************
-    system_info.py
+    systeminfo.py
     ---------------------
     Date                 : November 2016
     Copyright            : (C) 2016 Boundless, http://boundlessgeo.com
@@ -44,7 +44,8 @@ def systemInfo():
     info = ["System information",
             "------------------",
             "Operating system: {operatingSystem}",
-            "Processor: {cpu}"
+            "Processor: {cpu}",
+            "CPU cores: {cores_total} (total), {cores_physical} (physical)"
             "Installed RAM: {ram}",
             "Hostname: {hostname}"
             "User name: {username}",
@@ -54,6 +55,8 @@ def systemInfo():
     info = os.linesep.join(info)
     info = info.format(operatingSystem=platform.platform(),
                        cpu=cpuinfo.get_cpu_info()['brand'],
+                       cores_total=psutil.cpu_count(),
+                       cores_physical=psutil.cpu_count(True),
                        ram=_bytes2human(psutil.virtual_memory()[0]),
                        hostname==platform.node(),
                        username=getpass.getuser(),
