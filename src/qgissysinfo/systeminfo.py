@@ -60,7 +60,7 @@ def systemInfo():
                        cores_total=psutil.cpu_count(),
                        cores_physical=psutil.cpu_count(True),
                        ram=_bytes2human(psutil.virtual_memory()[0]),
-                       hostname==platform.node(),
+                       hostname=platform.node(),
                        username=getpass.getuser(),
                        home=os.path.expanduser("~")
                       )
