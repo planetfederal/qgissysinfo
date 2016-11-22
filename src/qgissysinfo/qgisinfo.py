@@ -152,6 +152,8 @@ def qgisPluginsInfo():
         if settings.value(p, True, type=bool):
             activePythonPlugins.append(p)
     settings.endGroup()
+    if len(activePythonPlugins) == 0:
+        activePythonPlugins = ["There are no active Python plugins"]
     activePythonPlugins = os.linesep.join(["\t{}".format(i) for i in activePythonPlugins])
 
     activeCppPlugins = []
@@ -161,15 +163,17 @@ def qgisPluginsInfo():
         if settings.value(p, True, type=bool):
             activeCppPlugins.append(p)
     settings.endGroup()
+    if len(activeCppPlugins) == 0:
+        activeCppPlugins = ["There are no active C++ plugins"]
     activeCppPlugins = os.linesep.join(["\t{}".format(i) for i in activeCppPlugins])
 
     info = ["QGIS Plugins",
             "------------",
             "Available Python plugins:",
             "{availPythonPlugins}",
-            "Active Python plugins:"
+            "Active Python plugins:",
             "{activePythonPlugins}",
-            "Active C++ plugins:"
+            "Active C++ plugins:",
             "{activeCppPlugins}",
            ]
 
