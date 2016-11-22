@@ -37,10 +37,10 @@ except ImportError:
     class psutil(object):
         @staticmethod
         def cpu_count(a=True):
-           return "Not available"
+           return None
         @staticmethod
         def virtual_memory():
-           return ["Not available"]
+           return None
 
 from PyQt4.Qt import PYQT_VERSION_STR
 from PyQt4.QtCore import QT_VERSION_STR
@@ -74,11 +74,17 @@ def systemInfo():
            ]
 
     info = os.linesep.join(info)
+    ram = psutil.virtual_memory()
+    if ram is not None:
+        ram = _bytes2human(ram[0])
+    else:
+        ram = "Not available"
+
     info = info.format(operatingSystem=platform.platform(),
                        cpu=cpuinfo.get_cpu_info()['brand'],
-                       cores_total=psutil.cpu_count(),
-                       cores_physical=psutil.cpu_count(True),
-                       ram=_bytes2human(psutil.virtual_memory()[0]),
+                       cores_total=psutil.cpu_count() or "Not available",
+                       cores_physical=psutil.cpu_count(True) or "Not available",
+                       ram=ram,
                        hostname=platform.node(),
                        username=getpass.getuser(),
                        home=os.path.expanduser("~")
