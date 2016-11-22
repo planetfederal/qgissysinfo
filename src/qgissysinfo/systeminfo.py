@@ -41,6 +41,8 @@ from PyQt4.QtSql import QSqlDatabase
 
 
 def systemInfo():
+    """Returns general system information as plain text string.
+    """
     info = ["System information",
             "------------------",
             "Operating system: {operatingSystem}",
@@ -66,6 +68,8 @@ def systemInfo():
 
 
 def pythonInfo():
+    """Returns Python information as plain text string.
+    """
     info = ["Python information",
             "------------------",
             "Python implementation: {implementation}"
@@ -92,6 +96,8 @@ def pythonInfo():
 
 
 def qtInfo():
+    """Returns Qt/PyQt information as plain text string.
+    """
     info = ["Qt/PyQt information",
             "-------------------",
             "Qt version: {qtVersion}",
@@ -124,8 +130,9 @@ def qtInfo():
 
 
 def _bytes2human(n):
-    """ Adopted from http://code.activestate.com/recipes/578019
-    """
+    """ Converts bytes into human readable string
+    Adopted from http://code.activestate.com/recipes/578019
+     """
     symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
     prefix = {}
     for i, s in enumerate(symbols):
