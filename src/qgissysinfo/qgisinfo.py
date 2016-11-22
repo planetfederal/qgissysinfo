@@ -25,11 +25,12 @@ __copyright__ = '(C) 2016 Boundless, http://boundlessgeo.com'
 __revision__ = '$Format:%H$'
 
 import os
+import sys
 import ConfigParser
 
 from qgis.core.contextmanagers import qgisapp
 from qgis.core import QGis, QgsApplication, QgsProviderRegistry
-from qgis.utils import plugin_paths
+import qgis.utils
 
 from PyQt4.QtCore import QSettings
 
@@ -43,10 +44,7 @@ def allQgisInfo():
     info = [qgisMainInfo()]
     info.append(qgisSettingsInfo())
     info.append(qgisPluginsInfo())
-    try:
-        info.append(qgisProvidersInfo())
-    except:
-        pass
+    info.append(qgisProvidersInfo())
 
     return "\n\n".join(info)
 
@@ -94,8 +92,11 @@ def qgisProvidersInfo():
             "{dataProviders}",
            ]
 
-    with qgisapp(sys.argv):
-        providers = QgsProviderRegistry.instance().pluginList().split('\n')
+    try:
+        with qgisapp(sys.argv):
+            providers = QgsProviderRegistry.instance().pluginList().split('\n')
+    except:
+        providers = ["Could not load QGIS data provider plugins"]
 
     providers = os.linesep.join(["\t{}".format(i) for i in providers])
 
@@ -115,18 +116,34 @@ def qgisMainInfo():
             "QGIS prefix path: {qgisPrefixPath}",
             "QGIS library path: {qgisLibraryPath}",
             "QGIS lib exec path: {qgisLibExecPath}",
+            "QGIS pkg data path: {qgisPkgDataPath}",
             "QGIS application state:"
             "{qgisAppState}",
            ]
 
-    appState = QgsApplication.showSettings().replace("\t\t", " ").split("\n")[1:]
+    try:
+        with qgisapp(sys.argv):
+            appState = QgsApplication.showSettings().replace("\t\t", " ").split("\n")[1:]
+            prefixPath = QgsApplication.prefixPath()
+            libraryPath = QgsApplication.libraryPath()
+            libExecPath = QgsApplication.libexecPath()
+            pkgDataPath = QgsApplication.pkgDataPath()
+    except:
+        appState = ["Could not read QGIS settings"]
+        prefixPath = "Not available"
+        libraryPath = "Not available"
+        libExecPath = "Not available"
+        pkgDataPath = "Not available"
+
+
     appState = os.linesep.join(["\t{}".format(i) for i in appState])
 
     info = os.linesep.join(info)
     info = info.format(qgisVersion="{} ({})".format(QGis.QGIS_VERSION, QGis.QGIS_DEV_VERSION),
-                       qgisPrefixPath=QgsApplication.prefixPath(),
-                       qgisLibraryPath=QgsApplication.libraryPath(),
-                       qgisLibExecPath=QgsApplication.libexecPath(),
+                       qgisPrefixPath=
+                       qgisLibraryPath=,
+                       qgisLibExecPath=,
+                       qgisPkgDataPath=,
                        qgisAppState=appState
                       )
     return info
@@ -135,8 +152,19 @@ def qgisMainInfo():
 def qgisPluginsInfo():
     cfg = ConfigParser.SafeConfigParser()
 
+    pluginPaths = []
+    try:
+        with qgisapp(sys.argv):
+            pluginPaths = qgis.utils.plugin_paths
+            pkgDataPath = QgsApplication.pkgDataPath()
+    except:
+        if len(pluginPaths) == 0:
+            pluginPaths.append(os.path.join(os.path.expanduser("~"), ".qgis2", "python", "plugins"))
+        if pkgDataPath != "":
+            pluginPaths.append(os.path.join(pkgDataPath, "python", "plugins"))
+
     availablePythonPlugins = []
-    for p in plugin_paths:
+    for p in pluginPaths:
         for (root, dirs, files) in os.walk(p):
             for d in dirs:
                 pluginPath = os.path.join(root, d)
