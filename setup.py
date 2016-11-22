@@ -1,26 +1,32 @@
-import os
+# -*- coding: utf-8 -*-
+
+import codecs
 from setuptools import setup
 
-def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+with codecs.open('README', encoding='utf-8') as f:
+    readme_text = f.read()
+
 
 setup(
-    name="qgissysinfo",
-    version="0.1",
-    install_requires=[],
-    author="Alexander Bruy",
-    author_email="alexbruy@boundlessgeo.com",
-    description="Collect system and QGIS information",    
-    long_description=(read('README')),
-    # Full list of classifiers can be found at:
-    # http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    name='qgissysteminfo',
+    version='0.1.0',
+    install_requires=['psutil', 'py-cpuinfo'],
+    author='Alexander Bruy',
+    author_email='abruy@boundlessgeo.com',
+    description='Collect various information about system and QGIS.',
+    long_description=(readme_text),
     classifiers=[
         'Development Status :: 3 - Alpha',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'Operating System :: OS Independent',
+        'Topic :: Terminals',
+        'Topic :: Utilities'
     ],
-    license="GPL3",
-    keywords="QGIS",
+    license="GPLv3+",
     url='https://github.com/boundlessgeo/qgissysinfo',
-    package_dir={'': 'src'},
-    test_suite='test.suite',
+    package_dir={'': '.'},
     packages=['qgissysinfo',]
 )
