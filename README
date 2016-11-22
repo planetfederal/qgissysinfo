@@ -1,1 +1,5 @@
-qgissysinfo library
+qgissysteminfo
+==============
+
+Utility module and command line tool for collecting various information
+about system and QGIS.
