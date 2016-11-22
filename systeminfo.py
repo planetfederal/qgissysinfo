@@ -55,13 +55,13 @@ def pythonInfo():
     modulePaths = os.linesep.join(["\t{}".format(i) for i in sys.path])
 
     info = os.linesep.join(info)
-    info = info.format(implementation = platform.python_implementation(),
-                       version = platform.python_version(),
-                       build = platform.python_build(),
-                       binaryPath = sys.executable,
-                       prefix = sys.prefix,
-                       execPrefix = sys.exec_prefix,
-                       pythonPath = modulePaths
+    info = info.format(implementation=platform.python_implementation(),
+                       version=platform.python_version(),
+                       build=platform.python_build(),
+                       binaryPath=sys.executable,
+                       prefix=sys.prefix,
+                       execPrefix=sys.exec_prefix,
+                       pythonPath=modulePaths
                       )
     return info
 
@@ -88,11 +88,11 @@ def qtInfo():
             ["\t{}".format(i) for i in QImageReader.supportedImageFormats()])
 
     info = os.linesep.join(info)
-    info = info.format(qtVersion = QT_VERSION_STR,
-                       pyqtVersion = PYQT_VERSION_STR,
-                       sipVersion = SIP_VERSION_STR,
-                       qtLibs = libPaths,
-                       qtDbPlugins = dbPlugins,
-                       qtImagePlugins = imagePlugins
+    info = info.format(qtVersion=QT_VERSION_STR,
+                       pyqtVersion=PYQT_VERSION_STR,
+                       sipVersion=SIP_VERSION_STR,
+                       qtLibs=libPaths,
+                       qtDbPlugins=dbPlugins,
+                       qtImagePlugins=imagePlugins
                       )
     return info
