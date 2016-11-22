@@ -26,7 +26,11 @@ __revision__ = '$Format:%H$'
 
 import os
 import sys
+import getpass
 import platform
+
+import cpuinfo
+import psutil
 
 from PyQt4.Qt import PYQT_VERSION_STR
 from PyQt4.QtCore import QT_VERSION_STR
@@ -37,7 +41,25 @@ from PyQt4.QtSql import QSqlDatabase
 
 
 def systemInfo():
-    pass
+    info = ["System information",
+            "------------------",
+            "Operating system: {operatingSystem}",
+            "Processor: {cpu}"
+            "Installed RAM: {ram}",
+            "Hostname: {hostname}"
+            "User name: {username}",
+            "Home directory: {home}"
+           ]
+
+    info = os.linesep.join(info)
+    info = info.format(operatingSystem=platform.platform(),
+                       cpu=cpuinfo.get_cpu_info()['brand'],
+                       ram=_bytes2human(psutil.virtual_memory()[0]),
+                       hostname==platform.node(),
+                       username=getpass.getuser(),
+                       home=os.path.expanduser("~")
+                      )
+    return info
 
 
 def pythonInfo():
@@ -96,3 +118,17 @@ def qtInfo():
                        qtImagePlugins=imagePlugins
                       )
     return info
+
+
+def _bytes2human(n):
+    """ Adopted from http://code.activestate.com/recipes/578019
+    """
+    symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+    prefix = {}
+    for i, s in enumerate(symbols):
+        prefix[s] = 1 << (i + 1) * 10
+    for s in reversed(symbols):
+        if n >= prefix[s]:
+            value = float(n) / prefix[s]
+            return "{:.1f} {:s}".format(value, s)
+    return "{} B".format(n)
