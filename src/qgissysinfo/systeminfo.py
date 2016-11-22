@@ -30,7 +30,17 @@ import getpass
 import platform
 
 import cpuinfo
-import psutil
+
+try:
+    import psutil
+except ImportError:
+    class psutil(object):
+        @staticmethod
+        def cpu_count(a=True):
+           return "Not available"
+        @staticmethod
+        def virtual_memory():
+           return ["Not available"]
 
 from PyQt4.Qt import PYQT_VERSION_STR
 from PyQt4.QtCore import QT_VERSION_STR
