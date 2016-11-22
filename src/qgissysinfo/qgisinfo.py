@@ -72,8 +72,8 @@ def qgisSettingsInfo():
                 "{name}: {url} ({enabled}, {auth})".format(
                         name=key,
                         url=repoUrl,
-                        enabled=isEnabled,
-                        auth=True if authcfg != "" else False))
+                        enabled="enabled" if isEnabled else "disabled",
+                        auth="need auth" if authcfg != "" else "no auth"))
     settings.endGroup()
 
     repos = os.linesep.join(["\t{}".format(i) for i in repos])
