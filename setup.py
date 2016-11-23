@@ -15,6 +15,7 @@ setup(
     author_email='abruy@boundlessgeo.com',
     description='Collect various information about system and QGIS.',
     long_description=(readme_text),
+    entry_points = {'console_scripts': ['genreport=qgissysinfo.genreport:main']},
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
