@@ -70,7 +70,7 @@ def qgisSettingsInfo():
                         auth="need auth" if authcfg != "" else "no auth"))
     settings.endGroup()
 
-    return {"QGIS Settings": {"Plugin repositories": repos}
+    return {"QGIS Settings": {"Plugin repositories": repos}}
 
 
 def qgisProvidersInfo():
@@ -84,7 +84,7 @@ def qgisProvidersInfo():
     except:
         providers = ["Could not load QGIS data provider plugins"]
 
-    return {"QGIS providers": {"Available QGIS data provider plugins": providers}
+    return {"QGIS providers": {"Available QGIS data provider plugins": providers}}
 
 
 def qgisMainInfo():

@@ -63,22 +63,20 @@ def systemInfo():
     """Returns general system information as plain text string.
     """
 
-
-    info = os.linesep.join(info)
     ram = psutil.virtual_memory()
     if ram is not None:
         ram = _bytes2human(ram[0])
     else:
         ram = "Not available"
 
-    info = {"System information": {
+    return {"System information": {
                 "Operating system": platform.platform(),
                 "Processor": cpuinfo.get_cpu_info()['brand'],
                 "CPU cores" : "{} (total), {} (physical)".format(
                                       psutil.cpu_count() or "Not available", 
                                       psutil.cpu_count(True) or "Not available"),
                 "Installed RAM": ram,
-                "Hostname": platform.node()
+                "Hostname": platform.node(),
                 "User name": getpass.getuser(),
                 "Home directory": os.path.expanduser("~")}}
 
