@@ -40,11 +40,27 @@ except ImportError:
 reportsDir = os.path.expanduser("~")
 
 
+def asText(data, level=0):
+    if isinstance(data, dict):
+        s = ""
+        for key, value in data.iteritems():
+            s += ("\t" * level)
+            s += "-" + unicode(key) + os.linesep
+            s += asText(value, level + 1)
+        return s
+    elif isinstance(data, list):
+        s = ""
+        for item in data:
+            s += asText(unicode(item), level)
+        return s
+    else:
+        return ("\t" * level) + "-" + unicode(data) + os.linesep
+
+
 def main():
-    info = [systeminfo.allSystemInfo()]
+    info = systeminfo.allSystemInfo()
     if hasPyQgis:
-        info.append(qgisinfo.allQgisInfo())
-    info = "/n/n".join(info)
+        info.update(qgisinfo.allQgisInfo())
 
     i = 1
     fileName = "QgisSystemReport-{}-{}.txt".format(datetime.date.today().isoformat(), i)
@@ -55,9 +71,9 @@ def main():
         fullPath = os.path.join(reportsDir, fileName)
 
     with codecs.open(fullPath, "w", "utf-8") as f:
-        f.write(info)
+        f.write(asText(info))
 
-    print "Information saved to {}".format(fullPath)
+    print "Report saved saved to {}".format(fullPath)
 
 
 if __name__ == "__main__":
