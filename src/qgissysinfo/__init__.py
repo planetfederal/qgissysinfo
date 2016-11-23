@@ -9,6 +9,7 @@ def info():
 
 def _as_text(o, level = 0):
 	if isinstance(o, dict):
+		s = ""
 		for key,value in o.iteritems():
 			s += ("\t" * level)			
 			s += "-" + key + os.linesep
