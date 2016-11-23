@@ -70,7 +70,7 @@ def pythonInfo():
     """
     try:
         pipInfo = subprocess.check_output("pip freeze", shell=True, universal_newlines=True).split()
-    except CalledProcessError, e:
+    except subprocess.CalledProcessError, e:
         pipInfo = ["Could not get PIP information: {}".format(e.output)]
 
     return {"Python information":{
