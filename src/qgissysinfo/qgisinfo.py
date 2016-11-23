@@ -115,6 +115,9 @@ def qgisMainInfo():
 
 
 def qgisPluginsInfo():
+    """Returns installed Python plugins, their versions and locations.
+    Also returns list of active plugins (both core and Python).
+    """
     cfg = ConfigParser.SafeConfigParser()
 
     pluginPaths = []
