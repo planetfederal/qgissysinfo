@@ -29,6 +29,7 @@ import sys
 import ctypes
 import getpass
 import platform
+import subprocess
 
 import cpuinfo
 
@@ -126,24 +127,23 @@ def _ramSize():
         kernel32.GlobalMemoryStatus(ctypes.byref(memoryStatus))
         return memoryStatus.dwTotalPhys
     elif osType == "Linux":
-        value = os.popen("free -b").readlines()[1].split()[1]
+        value = subprocess.check_output("free -b", shell=True, universal_newlines=True).split()[7]
         return int(value)
     elif osType == "Darwin":
-        value = os.popen("sysctl hw.memsize").readlines().split(":")[1].strip()
+        value = subprocess.check_output("sysctl hw.memsize", shell=True, universal_newlines=True).split(":")[1].strip()
         return int(value)
 
 
 def _cpuCount():
     osType = platform.system()
     if osType == "Windows":
-        values = os.popen("wmic cpu get NumberOfCores,NumberOfLogicalProcessors").readlines()[1].split()
-        physical = values[0].strip()
-        logical = values[1].strip()
+        values = subprocess.check_output("wmic cpu get NumberOfCores,NumberOfLogicalProcessors", shell=True, universal_newlines=True).split()
+        physical = values[2]
+        logical = values[3]
     elif osType == "Linux":
-        physical = os.popen("cat /proc/cpuinfo | grep 'cpu cores' | uniq").readlines().split(":")[1].strip()
-        logical = os.popen("grep -c 'processor' /proc/cpuinfo").readlines()
+        physical = subprocess.check_output("cat /proc/cpuinfo | grep 'cpu cores' | uniq", shell=True, universal_newlines=True).split(":")[1].strip()
+        logical = subprocess.check_output("grep -c 'processor' /proc/cpuinfo", shell=True, universal_newlines=True).strip()
     elif osType == "Darwin":
-        physical = os.popen("sysctl -n hw.physicalcpu").readlines()
-        logical = os.popen("sysctl -n hw.logicalcpu").readlines()
+        physical = subprocess.check_output("sysctl -n hw.physicalcpu", shell=True, universal_newlines=True).strip()
+        logical = subprocess.check_output("sysctl -n hw.logicalcpu", shell=True, universal_newlines=True).strip()
     return physical, logical
-
