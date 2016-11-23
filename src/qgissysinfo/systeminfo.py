@@ -71,7 +71,6 @@ def systemInfo():
     else:
         ram = "Not available"
 
-                      )
     info = {"System information": {
                 "Operating system": platform.platform(),
                 "Processor": cpuinfo.get_cpu_info()['brand'],
@@ -107,7 +106,7 @@ def qtInfo():
                 "Qt library paths": QApplication.libraryPaths(),                
                 "Qt database plugins":  QSqlDatabase.drivers(),                
                 "Qt image plugins": QImageReader.supportedImageFormats()}}                
-                
+
 
 def _bytes2human(n):
     """ Converts bytes into human readable string
