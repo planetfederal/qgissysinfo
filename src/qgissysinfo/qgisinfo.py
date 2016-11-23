@@ -28,9 +28,7 @@ import os
 import sys
 import ConfigParser
 
-from qgis.core.contextmanagers import qgisapp
 from qgis.core import QGis, QgsApplication, QgsProviderRegistry
-import qgis.utils
 
 from PyQt4.QtCore import QSettings
 
@@ -79,8 +77,9 @@ def qgisProvidersInfo():
     """
 
     try:
-        with qgisapp(sys.argv):
-            providers = QgsProviderRegistry.instance().pluginList().split('\n')
+        app = QgsApplication(sys.argv, False)
+        app.initQgis()
+        providers = QgsProviderRegistry.instance().pluginList().split('\n')
     except:
         providers = ["Could not load QGIS data provider plugins"]
 
@@ -93,12 +92,13 @@ def qgisMainInfo():
     """
 
     try:
-        with qgisapp(sys.argv):
-            appState = QgsApplication.showSettings().replace("\t\t", " ").split("\n")[1:]
-            prefixPath = QgsApplication.prefixPath()
-            libraryPath = QgsApplication.libraryPath()
-            libExecPath = QgsApplication.libexecPath()
-            pkgDataPath = QgsApplication.pkgDataPath()
+        app = QgsApplication(sys.argv, False)
+        app.initQgis()
+        appState = app.showSettings().replace("\t\t", " ").split("\n")[1:]
+        prefixPath = app.prefixPath()
+        libraryPath = app.libraryPath()
+        libExecPath = app.libexecPath()
+        pkgDataPath = app.pkgDataPath()
     except:
         appState = ["Could not read QGIS settings"]
         prefixPath = "Not available"
@@ -119,22 +119,26 @@ def qgisPluginsInfo():
 
     pluginPaths = []
     try:
-        with qgisapp(sys.argv):
-            pluginPaths = qgis.utils.plugin_paths
-            pkgDataPath = QgsApplication.pkgDataPath()
+        app = QgsApplication(sys.argv, False)
+        app.initQgis()
+        pluginPaths.append(app.pkgDataPath())
+        pluginPaths.append(os.path.split(app.qgisUserDbFilePath())[0])
     except:
-        if len(pluginPaths) == 0:
-            pluginPaths.append(os.path.join(os.path.expanduser("~"), ".qgis2", "python", "plugins"))
-        if pkgDataPath != "":
-            pluginPaths.append(os.path.join(pkgDataPath, "python", "plugins"))
+        pluginPaths.append(os.path.join(os.path.expanduser("~"), ".qgis2"))
+
+    print pluginPaths
+    pluginPaths = [os.path.join(p, "python", "plugins") for p in pluginPaths]
+    print pluginPaths
 
     availablePythonPlugins = []
     for p in pluginPaths:
         for (root, dirs, files) in os.walk(p):
             for d in dirs:
                 pluginPath = os.path.join(root, d)
-                version = cfg.read(os.path.join(pluginPath, 'metadata.txt'))
-                availablePythonPlugins.append("{} ({}) from {}".format(d, version, pluginPath))
+                cfg.read(os.path.join(pluginPath, 'metadata.txt'))
+                version = cfg.get('general', 'version')
+                availablePythonPlugins.append("{} ({}) in {}".format(d, version, pluginPath))
+            break
 
     activePythonPlugins = []
     settings = QSettings("QGIS", "QGIS2")
