@@ -39,24 +39,20 @@ reposGroup = "/Qgis/plugin-repos"
 
 
 def allQgisInfo():
-    """Returns all possible QGIS information as plain text string.
+    """Returns all possible QGIS information.
     """
-    info = [qgisMainInfo()]
-    info.append(qgisSettingsInfo())
-    info.append(qgisPluginsInfo())
-    info.append(qgisProvidersInfo())
 
-    return "\n\n".join(info)
+    info = qgisMainInfo()
+    info.update(qgisSettingsInfo())
+    info.update(qgisPluginsInfo())
+    info.update(qgisProvidersInfo())
+
+    return info
 
 def qgisSettingsInfo():
     """Returns various bits of information from QGIS settings.
     This information can be retrieved even if QGIS can not start.
     """
-    info = ["QGIS settings",
-            "-------------",
-            "Plugin repositories:",
-            "{qgisRepos}",
-           ]
 
     settings = QSettings("QGIS", "QGIS2")
 
@@ -74,23 +70,13 @@ def qgisSettingsInfo():
                         auth="need auth" if authcfg != "" else "no auth"))
     settings.endGroup()
 
-    repos = os.linesep.join(["\t{}".format(i) for i in repos])
-
-    info = os.linesep.join(info)
-    info = info.format(qgisRepos=repos,
-                      )
-    return info
+    return {"QGIS Settings": {"Plugin repositories": repos}
 
 
 def qgisProvidersInfo():
     """Returns information about various QGIS plugins (data providers,
     installed and active plugins, etc).
     """
-    info = ["QGIS providers",
-            "--------------",
-            "Available QGIS data provider plugins:",
-            "{dataProviders}",
-           ]
 
     try:
         with qgisapp(sys.argv):
@@ -98,28 +84,13 @@ def qgisProvidersInfo():
     except:
         providers = ["Could not load QGIS data provider plugins"]
 
-    providers = os.linesep.join(["\t{}".format(i) for i in providers])
-
-    info = os.linesep.join(info)
-    info = info.format(dataProviders=providers,
-                      )
-    return info
+    return {"QGIS providers": {"Available QGIS data provider plugins": providers}
 
 
 def qgisMainInfo():
     """Returns general QGIS information like version, code revision,
     lib and app paths, etc.
     """
-    info = ["QGIS information",
-            "----------------",
-            "QGIS version: {qgisVersion}",
-            "QGIS prefix path: {qgisPrefixPath}",
-            "QGIS library path: {qgisLibraryPath}",
-            "QGIS lib exec path: {qgisLibExecPath}",
-            "QGIS pkg data path: {qgisPkgDataPath}",
-            "QGIS application state:"
-            "{qgisAppState}",
-           ]
 
     try:
         with qgisapp(sys.argv):
@@ -135,18 +106,12 @@ def qgisMainInfo():
         libExecPath = "Not available"
         pkgDataPath = "Not available"
 
-
-    appState = os.linesep.join(["\t{}".format(i) for i in appState])
-
-    info = os.linesep.join(info)
-    info = info.format(qgisVersion="{} ({})".format(QGis.QGIS_VERSION, QGis.QGIS_DEV_VERSION),
-                       qgisPrefixPath=
-                       qgisLibraryPath=,
-                       qgisLibExecPath=,
-                       qgisPkgDataPath=,
-                       qgisAppState=appState
-                      )
-    return info
+    return {"QGIS information": {"QGIS version": "{} ({})".format(QGis.QGIS_VERSION, QGis.QGIS_DEV_VERSION),
+                                "QGIS prefix path": prefixPath,
+                                "QGIS library path": libraryPath,
+                                "QGIS lib exec path": libExecPath,
+                                "QGIS pkg data path": pkgDataPath,
+                                "QGIS application state": appState}}
 
 
 def qgisPluginsInfo():
@@ -171,8 +136,6 @@ def qgisPluginsInfo():
                 version = cfg.read(os.path.join(pluginPath, 'metadata.txt'))
                 availablePythonPlugins.append("{} ({}) from {}".format(d, version, pluginPath))
 
-    availablePythonPlugins = os.linesep.join(["\t{}".format(i) for i in availablePythonPlugins])
-
     activePythonPlugins = []
     settings = QSettings("QGIS", "QGIS2")
     settings.beginGroup("PythonPlugins")
@@ -182,7 +145,6 @@ def qgisPluginsInfo():
     settings.endGroup()
     if len(activePythonPlugins) == 0:
         activePythonPlugins = ["There are no active Python plugins"]
-    activePythonPlugins = os.linesep.join(["\t{}".format(i) for i in activePythonPlugins])
 
     activeCppPlugins = []
     settings = QSettings("QGIS", "QGIS2")
@@ -193,21 +155,10 @@ def qgisPluginsInfo():
     settings.endGroup()
     if len(activeCppPlugins) == 0:
         activeCppPlugins = ["There are no active C++ plugins"]
-    activeCppPlugins = os.linesep.join(["\t{}".format(i) for i in activeCppPlugins])
 
-    info = ["QGIS Plugins",
-            "------------",
-            "Available Python plugins:",
-            "{availPythonPlugins}",
-            "Active Python plugins:",
-            "{activePythonPlugins}",
-            "Active C++ plugins:",
-            "{activeCppPlugins}",
-           ]
+    return{"QGIS Plugins":{            
+                "Available Python plugins": availablePythonPlugins,            
+                "Active Python plugins": activePythonPlugins,            
+                "Active C++ plugins": activeCppPlugins}}
 
-    info = os.linesep.join(info)
-    info = info.format(availPythonPlugins=availablePythonPlugins,
-                       activePythonPlugins=activePythonPlugins,
-                       activeCppPlugins=activeCppPlugins
-                      )
-    return info
+    
