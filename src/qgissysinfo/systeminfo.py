@@ -68,6 +68,11 @@ def systemInfo():
 def pythonInfo():
     """Returns Python information.
     """
+    try:
+        pipInfo = subprocess.check_output("pip freeze", shell=True, universal_newlines=True).split()
+    except CalledProcessError, e:
+        pipInfo = ["Could not get PIP information: {}".format(e.output)]
+
     return {"Python information":{
                 "Python implementation": platform.python_implementation(),
                 "Python version": "{} {}".format(platform.python_version(),
@@ -75,7 +80,8 @@ def pythonInfo():
                 "Python binary path": sys.executable,
                 "Prefix": sys.prefix,
                 "Exec prefix": sys.exec_prefix,
-                "Module search paths": sys.path}}
+                "Module search paths": sys.path,
+                "pip freeze": pipInfo}}
 
 def qtInfo():
     """Returns Qt/PyQt information.
