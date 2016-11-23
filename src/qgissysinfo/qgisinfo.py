@@ -107,11 +107,11 @@ def qgisMainInfo():
         pkgDataPath = "Not available"
 
     return {"QGIS information": {"QGIS version": "{} ({})".format(QGis.QGIS_VERSION, QGis.QGIS_DEV_VERSION),
-                                "QGIS prefix path": prefixPath,
-                                "QGIS library path": libraryPath,
-                                "QGIS lib exec path": libExecPath,
-                                "QGIS pkg data path": pkgDataPath,
-                                "QGIS application state": appState}}
+                                 "QGIS prefix path": prefixPath,
+                                 "QGIS library path": libraryPath,
+                                 "QGIS lib exec path": libExecPath,
+                                 "QGIS pkg data path": pkgDataPath,
+                                 "QGIS application state": appState}}
 
 
 def qgisPluginsInfo():
@@ -126,9 +126,7 @@ def qgisPluginsInfo():
     except:
         pluginPaths.append(os.path.join(os.path.expanduser("~"), ".qgis2"))
 
-    print pluginPaths
     pluginPaths = [os.path.join(p, "python", "plugins") for p in pluginPaths]
-    print pluginPaths
 
     availablePythonPlugins = []
     for p in pluginPaths:
@@ -160,9 +158,7 @@ def qgisPluginsInfo():
     if len(activeCppPlugins) == 0:
         activeCppPlugins = ["There are no active C++ plugins"]
 
-    return{"QGIS Plugins":{            
-                "Available Python plugins": availablePythonPlugins,            
-                "Active Python plugins": activePythonPlugins,            
+    return{"QGIS Plugins":{
+                "Available Python plugins": availablePythonPlugins,
+                "Active Python plugins": activePythonPlugins,
                 "Active C++ plugins": activeCppPlugins}}
-
-    

@@ -26,6 +26,7 @@ __revision__ = '$Format:%H$'
 
 import os
 import sys
+import ctypes
 import getpass
 import platform
 
@@ -37,9 +38,6 @@ except ImportError:
     class psutil(object):
         @staticmethod
         def cpu_count(a=True):
-           return None
-        @staticmethod
-        def virtual_memory():
            return None
 
 from PyQt4.Qt import PYQT_VERSION_STR
@@ -63,19 +61,13 @@ def systemInfo():
     """Returns general system information as plain text string.
     """
 
-    ram = psutil.virtual_memory()
-    if ram is not None:
-        ram = _bytes2human(ram[0])
-    else:
-        ram = "Not available"
-
     return {"System information": {
                 "Operating system": platform.platform(),
                 "Processor": cpuinfo.get_cpu_info()['brand'],
                 "CPU cores" : "{} (total), {} (physical)".format(
-                                      psutil.cpu_count() or "Not available", 
+                                      psutil.cpu_count() or "Not available",
                                       psutil.cpu_count(True) or "Not available"),
-                "Installed RAM": ram,
+                "Installed RAM": _bytes2human(_ramSize()),
                 "Hostname": platform.node(),
                 "User name": getpass.getuser(),
                 "Home directory": os.path.expanduser("~")}}
@@ -86,7 +78,7 @@ def pythonInfo():
     """
     return {"Python information":{
                 "Python implementation": platform.python_implementation(),
-                "Python version": "{} {}".format(platform.python_version(), 
+                "Python version": "{} {}".format(platform.python_version(),
                                                 platform.python_build()),
                 "Python binary path": sys.executable,
                 "Prefix": sys.prefix,
@@ -97,13 +89,13 @@ def qtInfo():
     """Returns Qt/PyQt information.
     """
 
-    return {"Qt/PyQt information":{            
+    return {"Qt/PyQt information":{
                 "Qt version": QT_VERSION_STR,
                 "PyQt version": PYQT_VERSION_STR,
                 "SIP version": SIP_VERSION_STR,
-                "Qt library paths": QApplication.libraryPaths(),                
-                "Qt database plugins":  QSqlDatabase.drivers(),                
-                "Qt image plugins": QImageReader.supportedImageFormats()}}                
+                "Qt library paths": QApplication.libraryPaths(),
+                "Qt database plugins":  QSqlDatabase.drivers(),
+                "Qt image plugins": QImageReader.supportedImageFormats()}}
 
 
 def _bytes2human(n):
@@ -119,3 +111,31 @@ def _bytes2human(n):
             value = float(n) / prefix[s]
             return "{:.1f} {:s}".format(value, s)
     return "{} B".format(n)
+
+
+def _ramSize():
+    osType = platform.system()
+    if osType == "Windows":
+        kernel32 = ctypes.windll.kernel32
+        c_ulong = ctypes.c_ulong
+        class MEMORYSTATUS(ctypes.Structure):
+            _fields_ = [
+                ('dwLength', c_ulong),
+                ('dwMemoryLoad', c_ulong),
+                ('dwTotalPhys', c_ulong),
+                ('dwAvailPhys', c_ulong),
+                ('dwTotalPageFile', c_ulong),
+                ('dwAvailPageFile', c_ulong),
+                ('dwTotalVirtual', c_ulong),
+                ('dwAvailVirtual', c_ulong)
+            ]
+
+        memoryStatus = MEMORYSTATUS()
+        memoryStatus.dwLength = ctypes.sizeof(MEMORYSTATUS)
+        kernel32.GlobalMemoryStatus(ctypes.byref(memoryStatus))
+        return memoryStatus.dwTotalPhys
+    elif osType == "Linux":
+        value = os.popen("free -b").readlines()[1].split()[1]
+        return int(value)
+    elif osType == "Darwin":
+        return 0
