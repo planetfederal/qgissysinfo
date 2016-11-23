@@ -10,7 +10,7 @@ with codecs.open('README', encoding='utf-8') as f:
 setup(
     name='qgissysteminfo',
     version='0.1.0',
-    install_requires=['psutil', 'py-cpuinfo'],
+    install_requires=['py-cpuinfo'],
     author='Alexander Bruy',
     author_email='abruy@boundlessgeo.com',
     description='Collect various information about system and QGIS.',

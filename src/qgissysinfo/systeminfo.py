@@ -32,14 +32,6 @@ import platform
 
 import cpuinfo
 
-try:
-    import psutil
-except ImportError:
-    class psutil(object):
-        @staticmethod
-        def cpu_count(a=True):
-           return None
-
 from PyQt4.Qt import PYQT_VERSION_STR
 from PyQt4.QtCore import QT_VERSION_STR
 from sip import SIP_VERSION_STR
@@ -61,12 +53,11 @@ def systemInfo():
     """Returns general system information as plain text string.
     """
 
+    physical, logical = _cpuCount()
     return {"System information": {
                 "Operating system": platform.platform(),
                 "Processor": cpuinfo.get_cpu_info()['brand'],
-                "CPU cores" : "{} (total), {} (physical)".format(
-                                      psutil.cpu_count() or "Not available",
-                                      psutil.cpu_count(True) or "Not available"),
+                "CPU cores" : "{} (total), {} (physical)".format(logical, physical),
                 "Installed RAM": _bytes2human(_ramSize()),
                 "Hostname": platform.node(),
                 "User name": getpass.getuser(),
@@ -138,4 +129,21 @@ def _ramSize():
         value = os.popen("free -b").readlines()[1].split()[1]
         return int(value)
     elif osType == "Darwin":
-        return 0
+        value = os.popen("sysctl hw.memsize").readlines().split(":")[1].strip()
+        return int(value)
+
+
+def _cpuCount():
+    osType = platform.system()
+    if osType == "Windows":
+        values = os.popen("wmic cpu get NumberOfCores,NumberOfLogicalProcessors").readlines()[1].split()
+        physical = values[0].strip()
+        logical = values[1].strip()
+    elif osType == "Linux":
+        physical = os.popen("cat /proc/cpuinfo | grep 'cpu cores' | uniq").readlines().split(":")[1].strip()
+        logical = os.popen("grep -c 'processor' /proc/cpuinfo").readlines()
+    elif osType == "Darwin":
+        physical = os.popen("sysctl -n hw.physicalcpu").readlines()
+        logical = os.popen("sysctl -n hw.logicalcpu").readlines()
+    return physical, logical
+
