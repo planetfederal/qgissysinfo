@@ -143,7 +143,11 @@ def _ramSize():
 def _cpuCount():
     osType = platform.system()
     if osType == "Windows":
-        values = subprocess.check_output("wmic cpu get NumberOfCores,NumberOfLogicalProcessors", shell=True, universal_newlines=True).split()
+        try:
+            values = subprocess.check_output("wmic cpu get NumberOfCores,NumberOfLogicalProcessors", shell=True, universal_newlines=True).split()
+        except subprocess.CalledProcessError, e:
+            print "Could not get number of CPU cores: {}".format(e.output)
+            values = [0, 0, "Not available", "Not available"]
         physical = values[2]
         logical = values[3]
     elif osType == "Linux":
