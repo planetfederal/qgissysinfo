@@ -68,7 +68,7 @@ def qgisSettingsInfo():
                         auth="need auth" if authcfg != "" else "no auth"))
     settings.endGroup()
 
-    return {"QGIS Settings": {"Plugin repositories": repos}}
+    return {"QGIS settings": {"Plugin repositories": repos}}
 
 
 def qgisProvidersInfo():
@@ -161,7 +161,7 @@ def qgisPluginsInfo():
     if len(activeCppPlugins) == 0:
         activeCppPlugins = ["There are no active C++ plugins"]
 
-    return{"QGIS Plugins":{
+    return{"QGIS plugins":{
                 "Available Python plugins": availablePythonPlugins,
                 "Active Python plugins": activePythonPlugins,
                 "Active C++ plugins": activeCppPlugins}}
