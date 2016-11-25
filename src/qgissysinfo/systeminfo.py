@@ -33,6 +33,17 @@ import subprocess
 
 import cpuinfo
 
+try:
+    import psutil
+except ImportError:
+    class psutil(object):
+        @staticmethod
+        def cpu_count(a=True):
+           return None
+        @staticmethod
+        def virtual_memory():
+           return None
+
 from PyQt4.Qt import PYQT_VERSION_STR
 from PyQt4.QtCore import QT_VERSION_STR
 from sip import SIP_VERSION_STR
@@ -54,12 +65,19 @@ def systemInfo():
     """Returns general system information as plain text string.
     """
 
-    physical, logical = _cpuCount()
+    ram = psutil.virtual_memory()
+    if ram is not None:
+        ram = _bytes2human(ram[0])
+    else:
+        ram = "Not available"
+
     return {"System information": {
                 "Operating system": platform.platform(),
                 "Processor": cpuinfo.get_cpu_info()['brand'],
-                "CPU cores" : "{} (total), {} (physical)".format(logical, physical),
-                "Installed RAM": _bytes2human(_ramSize()),
+                "CPU cores" : "{} (total), {} (physical)".format(
+                                      psutil.cpu_count() or "Not available",
+                                      psutil.cpu_count(True) or "Not available"),
+                "Installed RAM": ram,
                 "Hostname": platform.node(),
                 "User name": getpass.getuser(),
                 "Home directory": os.path.expanduser("~")}}
@@ -109,51 +127,3 @@ def _bytes2human(n):
             value = float(n) / prefix[s]
             return "{:.1f} {:s}".format(value, s)
     return "{} B".format(n)
-
-
-def _ramSize():
-    osType = platform.system()
-    if osType == "Windows":
-        kernel32 = ctypes.windll.kernel32
-        c_ulong = ctypes.c_ulong
-        class MEMORYSTATUS(ctypes.Structure):
-            _fields_ = [
-                ('dwLength', c_ulong),
-                ('dwMemoryLoad', c_ulong),
-                ('dwTotalPhys', c_ulong),
-                ('dwAvailPhys', c_ulong),
-                ('dwTotalPageFile', c_ulong),
-                ('dwAvailPageFile', c_ulong),
-                ('dwTotalVirtual', c_ulong),
-                ('dwAvailVirtual', c_ulong)
-            ]
-
-        memoryStatus = MEMORYSTATUS()
-        memoryStatus.dwLength = ctypes.sizeof(MEMORYSTATUS)
-        kernel32.GlobalMemoryStatus(ctypes.byref(memoryStatus))
-        return memoryStatus.dwTotalPhys
-    elif osType == "Linux":
-        value = subprocess.check_output("free -b", shell=True, universal_newlines=True).split()[7]
-        return int(value)
-    elif osType == "Darwin":
-        value = subprocess.check_output("sysctl hw.memsize", shell=True, universal_newlines=True).split(":")[1].strip()
-        return int(value)
-
-
-def _cpuCount():
-    osType = platform.system()
-    if osType == "Windows":
-        try:
-            values = subprocess.check_output("wmic cpu get NumberOfCores,NumberOfLogicalProcessors", shell=True, universal_newlines=True).split()
-        except subprocess.CalledProcessError, e:
-            print "Could not get number of CPU cores: {}".format(e.output)
-            values = [0, 0, "Not available", "Not available"]
-        physical = values[2]
-        logical = values[3]
-    elif osType == "Linux":
-        physical = subprocess.check_output("cat /proc/cpuinfo | grep 'cpu cores' | uniq", shell=True, universal_newlines=True).split(":")[1].strip()
-        logical = subprocess.check_output("grep -c 'processor' /proc/cpuinfo", shell=True, universal_newlines=True).strip()
-    elif osType == "Darwin":
-        physical = subprocess.check_output("sysctl -n hw.physicalcpu", shell=True, universal_newlines=True).strip()
-        logical = subprocess.check_output("sysctl -n hw.logicalcpu", shell=True, universal_newlines=True).strip()
-    return physical, logical
