@@ -42,7 +42,7 @@ def allQgisInfo(initApp):
 
     info = qgisMainInfo(initApp)
     info.update(qgisSettingsInfo())
-    info.update(qgisPluginsInfo())
+    info.update(qgisPluginsInfo(initApp))
     info.update(qgisProvidersInfo(initApp))
 
     return info
