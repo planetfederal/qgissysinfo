@@ -29,6 +29,7 @@ import sys
 import ConfigParser
 
 from qgis.core import QGis, QgsApplication, QgsProviderRegistry
+from qgis.utils import iface
 
 from PyQt4.QtCore import QSettings
 
@@ -76,13 +77,16 @@ def qgisProvidersInfo(initApp):
     installed and active plugins, etc).
     """
 
-    try:
+    if iface is None:
+        try:
         if initApp:
             app = QgsApplication(sys.argv, False)
             app.initQgis()
+            providers = QgsProviderRegistry.instance().pluginList().split('\n')
+        except:
+            providers = ["Could not load QGIS data provider plugins"]
+    else:
         providers = QgsProviderRegistry.instance().pluginList().split('\n')
-    except:
-        providers = ["Could not load QGIS data provider plugins"]
 
     return {"QGIS providers": {"Available QGIS data provider plugins": providers}}
 
@@ -92,23 +96,30 @@ def qgisMainInfo(initApp):
     lib and app paths, etc.
     """
 
-    try:
+    if iface is None:
+        try:
         if initApp:
             app = QgsApplication(sys.argv, False)
             app.initQgis()
         else:
             app = QgsApplication.instance()
-        appState = app.showSettings().replace("\t\t", " ").split("\n")[1:]
-        prefixPath = app.prefixPath()
-        libraryPath = app.libraryPath()
-        libExecPath = app.libexecPath()
-        pkgDataPath = app.pkgDataPath()
-    except:
-        appState = ["Could not read QGIS settings"]
-        prefixPath = "Not available"
-        libraryPath = "Not available"
-        libExecPath = "Not available"
-        pkgDataPath = "Not available"
+            appState = app.showSettings().replace("\t\t", " ").split("\n")[1:]
+            prefixPath = app.prefixPath()
+            libraryPath = app.libraryPath()
+            libExecPath = app.libexecPath()
+            pkgDataPath = app.pkgDataPath()
+        except:
+            appState = ["Could not read QGIS settings"]
+            prefixPath = "Not available"
+            libraryPath = "Not available"
+            libExecPath = "Not available"
+            pkgDataPath = "Not available"
+    else:
+        appState = QgsApplication.showSettings().replace("\t\t", " ").split("\n")[1:]
+        prefixPath = QgsApplication.prefixPath()
+        libraryPath = QgsApplication.libraryPath()
+        libExecPath = QgsApplication.libexecPath()
+        pkgDataPath = QgsApplication.pkgDataPath()
 
     return {"QGIS information": {"QGIS version": "{} ({})".format(QGis.QGIS_VERSION, QGis.QGIS_DEV_VERSION),
                                  "QGIS prefix path": prefixPath,
@@ -125,16 +136,20 @@ def qgisPluginsInfo(initApp):
     cfg = ConfigParser.SafeConfigParser()
 
     pluginPaths = []
-    try:
+    if iface is None:
+        try:
         if initApp:
             app = QgsApplication(sys.argv, False)
             app.initQgis()
         else:
             app = QgsApplication.instance()
-        pluginPaths.append(app.pkgDataPath())
-        pluginPaths.append(os.path.split(app.qgisUserDbFilePath())[0])
-    except:
-        pluginPaths.append(os.path.join(os.path.expanduser("~"), ".qgis2"))
+            pluginPaths.append(app.pkgDataPath())
+            pluginPaths.append(os.path.split(app.qgisUserDbFilePath())[0])
+        except:
+            pluginPaths.append(os.path.join(os.path.expanduser("~"), ".qgis2"))
+    else:
+        pluginPaths.append(QgsApplication.pkgDataPath())
+        pluginPaths.append(os.path.split(QgsApplication.qgisUserDbFilePath())[0])
 
     pluginPaths = [os.path.join(p, "python", "plugins") for p in pluginPaths]
 
