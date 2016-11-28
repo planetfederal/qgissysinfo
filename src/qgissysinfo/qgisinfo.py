@@ -37,14 +37,14 @@ from PyQt4.QtCore import QSettings
 reposGroup = "/Qgis/plugin-repos"
 
 
-def allQgisInfo(initApp):
+def allQgisInfo():
     """Returns all possible QGIS information.
     """
 
-    info = qgisMainInfo(initApp)
+    info = qgisMainInfo()
     info.update(qgisSettingsInfo())
-    info.update(qgisPluginsInfo(initApp))
-    info.update(qgisProvidersInfo(initApp))
+    info.update(qgisPluginsInfo())
+    info.update(qgisProvidersInfo())
 
     return info
 
@@ -72,14 +72,13 @@ def qgisSettingsInfo():
     return {"QGIS settings": {"Plugin repositories": repos}}
 
 
-def qgisProvidersInfo(initApp):
+def qgisProvidersInfo():
     """Returns information about various QGIS plugins (data providers,
     installed and active plugins, etc).
     """
 
     if iface is None:
         try:
-        if initApp:
             app = QgsApplication(sys.argv, False)
             app.initQgis()
             providers = QgsProviderRegistry.instance().pluginList().split('\n')
@@ -91,18 +90,15 @@ def qgisProvidersInfo(initApp):
     return {"QGIS providers": {"Available QGIS data provider plugins": providers}}
 
 
-def qgisMainInfo(initApp):
+def qgisMainInfo():
     """Returns general QGIS information like version, code revision,
     lib and app paths, etc.
     """
 
     if iface is None:
         try:
-        if initApp:
             app = QgsApplication(sys.argv, False)
             app.initQgis()
-        else:
-            app = QgsApplication.instance()
             appState = app.showSettings().replace("\t\t", " ").split("\n")[1:]
             prefixPath = app.prefixPath()
             libraryPath = app.libraryPath()
@@ -129,7 +125,7 @@ def qgisMainInfo(initApp):
                                  "QGIS application state": appState}}
 
 
-def qgisPluginsInfo(initApp):
+def qgisPluginsInfo():
     """Returns installed Python plugins, their versions and locations.
     Also returns list of active plugins (both core and Python).
     """
@@ -138,11 +134,8 @@ def qgisPluginsInfo(initApp):
     pluginPaths = []
     if iface is None:
         try:
-        if initApp:
             app = QgsApplication(sys.argv, False)
             app.initQgis()
-        else:
-            app = QgsApplication.instance()
             pluginPaths.append(app.pkgDataPath())
             pluginPaths.append(os.path.split(app.qgisUserDbFilePath())[0])
         except:
