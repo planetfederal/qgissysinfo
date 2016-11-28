@@ -28,12 +28,10 @@ import os
 import codecs
 import datetime
 
-import qgissysinfo
-
 reportsDir = os.path.expanduser("~")
 
-
-def main():
+def genreport():
+    import qgissysinfo
     i = 1
     fileName = "QgisSystemReport-{}-{}.txt".format(datetime.date.today().isoformat(), i)
     fullPath = os.path.join(reportsDir, fileName)
@@ -46,3 +44,7 @@ def main():
         f.write(qgissysinfo.info_as_text())
 
     print "Report saved saved to {}".format(fullPath)
+
+if __name__ == '__main__' and __package__ is None:
+    os.sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    genreport()

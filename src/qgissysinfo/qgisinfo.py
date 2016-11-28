@@ -36,14 +36,14 @@ from PyQt4.QtCore import QSettings
 reposGroup = "/Qgis/plugin-repos"
 
 
-def allQgisInfo():
+def allQgisInfo(initApp):
     """Returns all possible QGIS information.
     """
 
-    info = qgisMainInfo()
+    info = qgisMainInfo(initApp)
     info.update(qgisSettingsInfo())
     info.update(qgisPluginsInfo())
-    info.update(qgisProvidersInfo())
+    info.update(qgisProvidersInfo(initApp))
 
     return info
 
@@ -71,14 +71,15 @@ def qgisSettingsInfo():
     return {"QGIS settings": {"Plugin repositories": repos}}
 
 
-def qgisProvidersInfo():
+def qgisProvidersInfo(initApp):
     """Returns information about various QGIS plugins (data providers,
     installed and active plugins, etc).
     """
 
     try:
-        app = QgsApplication(sys.argv, False)
-        app.initQgis()
+        if initApp:
+            app = QgsApplication(sys.argv, False)
+            app.initQgis()
         providers = QgsProviderRegistry.instance().pluginList().split('\n')
     except:
         providers = ["Could not load QGIS data provider plugins"]
@@ -86,14 +87,17 @@ def qgisProvidersInfo():
     return {"QGIS providers": {"Available QGIS data provider plugins": providers}}
 
 
-def qgisMainInfo():
+def qgisMainInfo(initApp):
     """Returns general QGIS information like version, code revision,
     lib and app paths, etc.
     """
 
     try:
-        app = QgsApplication(sys.argv, False)
-        app.initQgis()
+        if initApp:
+            app = QgsApplication(sys.argv, False)
+            app.initQgis()
+        else:
+            app = QgsApplication.instance()
         appState = app.showSettings().replace("\t\t", " ").split("\n")[1:]
         prefixPath = app.prefixPath()
         libraryPath = app.libraryPath()
@@ -114,7 +118,7 @@ def qgisMainInfo():
                                  "QGIS application state": appState}}
 
 
-def qgisPluginsInfo():
+def qgisPluginsInfo(initApp):
     """Returns installed Python plugins, their versions and locations.
     Also returns list of active plugins (both core and Python).
     """
@@ -122,8 +126,11 @@ def qgisPluginsInfo():
 
     pluginPaths = []
     try:
-        app = QgsApplication(sys.argv, False)
-        app.initQgis()
+        if initApp:
+            app = QgsApplication(sys.argv, False)
+            app.initQgis()
+        else:
+            app = QgsApplication.instance()
         pluginPaths.append(app.pkgDataPath())
         pluginPaths.append(os.path.split(app.qgisUserDbFilePath())[0])
     except:

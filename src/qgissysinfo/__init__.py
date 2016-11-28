@@ -2,9 +2,9 @@ import systeminfo
 import qgisinfo
 import os
 
-def info():
+def info(initApp):
 	_info = systeminfo.allSystemInfo()
-	_info.update(qgisinfo.allQgisInfo())
+	_info.update(qgisinfo.allQgisInfo(initApp))
 	return _info
 
 def _as_text(o, level = 0):
@@ -23,5 +23,5 @@ def _as_text(o, level = 0):
 	else:
 		return ("\t" * level) + "-" + str(o) + os.linesep			
 
-def info_as_text():	
-	return _as_text(info())
+def info_as_text(initApp):	
+	return _as_text(info(initApp))

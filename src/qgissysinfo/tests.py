@@ -12,14 +12,14 @@ class QgisSysInfoTests(unittest.TestCase):
         pass
 
     def testQgisInfo(self):
-        info = qgisinfo.allQgisInfo()
+        info = qgisinfo.allQgisInfo(True)
         self.assertTrue("QGIS settings" in info)
         self.assertTrue("QGIS providers" in info)
         self.assertTrue("QGIS information" in info)
         self.assertTrue("QGIS plugins" in info)
 
     def testSystemInfo(self):
-        info = qgisinfo.allQgisInfo()
+        info = systeminfo.allSystemInfo()
         self.assertTrue("Python information" in info)
         self.assertTrue("Qt/PyQt information" in info)
         self.assertTrue("System information" in info)
