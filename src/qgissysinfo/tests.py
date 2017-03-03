@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import os
 import qgisinfo
 import systeminfo
+
 
 class QgisSysInfoTests(unittest.TestCase):
 
@@ -12,7 +12,7 @@ class QgisSysInfoTests(unittest.TestCase):
         pass
 
     def testQgisInfo(self):
-        info = qgisinfo.allQgisInfo(True)
+        info = qgisinfo.allQgisInfo()
         self.assertTrue("QGIS settings" in info)
         self.assertTrue("QGIS providers" in info)
         self.assertTrue("QGIS information" in info)
@@ -28,4 +28,3 @@ def testSuite():
     suite = unittest.TestSuite()
     suite.addTests(unittest.makeSuite(QgisSysInfoTests, 'test'))
     return suite
-
