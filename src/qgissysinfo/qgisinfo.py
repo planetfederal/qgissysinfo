@@ -144,7 +144,7 @@ def qgisPluginsInfo():
         pluginPaths.append(QgsApplication.pkgDataPath())
         pluginPaths.append(os.path.split(QgsApplication.qgisUserDbFilePath())[0])
 
-    pluginPaths = [os.path.join(str(p), "python", "plugins") for str(p) in pluginPaths]
+    pluginPaths = [os.path.join(str(p), "python", "plugins") for p in pluginPaths]
 
     availablePythonPlugins = []
     for p in pluginPaths:
