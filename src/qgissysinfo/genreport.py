@@ -28,6 +28,10 @@ import os
 import codecs
 import datetime
 
+import sip
+for c in ("QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"):
+    sip.setapi(c, 2)
+
 reportsDir = os.path.expanduser("~")
 
 

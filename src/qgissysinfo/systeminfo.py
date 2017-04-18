@@ -44,6 +44,10 @@ except ImportError:
         def virtual_memory():
            return None
 
+import sip
+for c in ("QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"):
+    sip.setapi(c, 2)
+
 from PyQt4.Qt import PYQT_VERSION_STR
 from PyQt4.QtCore import QT_VERSION_STR
 from sip import SIP_VERSION_STR
