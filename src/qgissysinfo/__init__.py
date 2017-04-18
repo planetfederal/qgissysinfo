@@ -7,6 +7,7 @@ def info():
     _info.update(qgisinfo.allQgisInfo())
     return _info
 
+
 def _as_text(o, level = 0):
     if isinstance(o, dict):
         s = ""
@@ -22,6 +23,7 @@ def _as_text(o, level = 0):
         return s
     else:
         return ("\t" * level) + "-" + str(o) + os.linesep
+
 
 def info_as_text():
     return _as_text(info())

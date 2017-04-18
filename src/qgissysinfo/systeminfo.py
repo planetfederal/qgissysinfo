@@ -104,6 +104,7 @@ def pythonInfo():
                 "Module search paths": sys.path,
                 "pip freeze": pipInfo}}
 
+
 def qtInfo():
     """Returns Qt/PyQt information.
     """
