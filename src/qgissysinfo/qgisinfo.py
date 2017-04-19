@@ -87,7 +87,6 @@ def qgisProvidersInfo():
             app = QgsApplication(sys.argv, False)
             app.initQgis()
             providers = QgsProviderRegistry.instance().pluginList().split('\n')
-            app.exitQgis()
         except:
             providers = ["Could not load QGIS data provider plugins"]
     else:
@@ -110,7 +109,6 @@ def qgisMainInfo():
             libraryPath = app.libraryPath()
             libExecPath = app.libexecPath()
             pkgDataPath = app.pkgDataPath()
-            app.exitQgis()
         except:
             appState = ["Could not read QGIS settings"]
             prefixPath = "Not available"
@@ -145,7 +143,6 @@ def qgisPluginsInfo():
             app.initQgis()
             pluginPaths.append(app.pkgDataPath())
             pluginPaths.append(os.path.split(app.qgisUserDbFilePath())[0])
-            app.exitQgis()
         except:
             pluginPaths.append(os.path.join(os.path.expanduser("~"), ".qgis2"))
     else:

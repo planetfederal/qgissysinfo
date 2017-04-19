@@ -35,7 +35,7 @@ for c in ("QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVar
 reportsDir = os.path.expanduser("~")
 
 
-def genreport():
+def createReport():
     import qgissysinfo
 
     i = 1
@@ -46,12 +46,14 @@ def genreport():
         fileName = "QgisSystemReport-{}-{}.txt".format(datetime.date.today().isoformat(), i)
         fullPath = os.path.join(reportsDir, fileName)
 
+    report = qgissysinfo.info_as_text()
     with codecs.open(fullPath, "w", "utf-8") as f:
-        f.write(qgissysinfo.info_as_text())
+        f.write(report)
 
-    print "Report saved saved to {}".format(fullPath)
+    return report, fullPath
 
 
 if __name__ == '__main__' and __package__ is None:
     os.sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    genreport()
+    report, filePath = createReport()
+    print "Report saved saved to {}".format(filePath)

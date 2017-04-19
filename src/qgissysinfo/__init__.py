@@ -1,6 +1,8 @@
+import os
+
 import systeminfo
 import qgisinfo
-import os
+
 
 def info():
     _info = systeminfo.allSystemInfo()
