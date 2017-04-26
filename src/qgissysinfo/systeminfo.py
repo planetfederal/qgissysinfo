@@ -31,7 +31,7 @@ import getpass
 import platform
 import subprocess
 
-import cpuinfo
+#import cpuinfo
 
 try:
     import psutil
@@ -77,7 +77,8 @@ def systemInfo():
 
     return {"System information": {
                 "Operating system": platform.platform(),
-                "Processor": cpuinfo.get_cpu_info()['brand'],
+                #"Processor": cpuinfo.get_cpu_info()['brand'],
+                "Processor": _cpuInfo(),
                 "CPU cores" : "{} (total), {} (physical)".format(
                                       psutil.cpu_count() or "Not available",
                                       psutil.cpu_count(True) or "Not available"),
@@ -135,3 +136,25 @@ def _bytes2human(n):
             value = float(n) / prefix[s]
             return "{:.1f} {:s}".format(value, s)
     return "{} B".format(n)
+
+def _cpuInfo():
+    osType = platform.system()
+    if osType == "Windows":
+        try:
+            info = subprocess.Popen("wmic cpu get Name", shell=True, universal_newlines=True).communicate()[0]
+        except subprocess.CalledProcessError, e:
+            print "Could not get CPU brand: {}".format(e.output)
+            info = "Not available"
+    elif osType == "Linux":
+        try:
+            info = subprocess.check_output("cat /proc/cpuinfo | grep 'model name' | uniq", shell=True, universal_newlines=True).split(":")[1].strip()
+        except subprocess.CalledProcessError, e:
+            print "Could not get CPU brand: {}".format(e.output)
+            info = "Not available"
+    elif osType == "Darwin":
+        try:
+            info = subprocess.check_output("sysctl -n machdep.cpu.brand_string", shell=True, universal_newlines=True).split(":")[1].strip()
+        except subprocess.CalledProcessError, e:
+            print "Could not get CPU brand: {}".format(e.output)
+            info = "Not available"
+    return info
