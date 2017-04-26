@@ -140,10 +140,27 @@ def _bytes2human(n):
 def _cpuInfo():
     osType = platform.system()
     if osType == "Windows":
+        #~ try:
+            #~ info = subprocess.Popen("wmic cpu get Name", shell=True, universal_newlines=True).communicate()[0]
+        #~ except subprocess.CalledProcessError, e:
+            #~ print "Could not get CPU brand: {}".format(e.output)
+            #~ info = "Not available"
+        hasWinreg = False
         try:
-            info = subprocess.Popen("wmic cpu get Name", shell=True, universal_newlines=True).communicate()[0]
-        except subprocess.CalledProcessError, e:
-            print "Could not get CPU brand: {}".format(e.output)
+            import _winreg as winreg
+            hasWinreg = True
+        except ImportError as err:
+            try:
+                import winreg
+                hasWinreg = True
+            except ImportError as err:
+                pass
+
+        if hasWinreg:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"Hardware\Description\System\CentralProcessor\0")
+            info = winreg.QueryValueEx(key, "ProcessorNameString")[0]
+            winreg.CloseKey(key)
+        else:
             info = "Not available"
     elif osType == "Linux":
         try:
