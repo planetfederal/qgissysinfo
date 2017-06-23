@@ -32,7 +32,7 @@ import sip
 for c in ("QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"):
     sip.setapi(c, 2)
 
-from qgis.core import QGis, QgsApplication, QgsProviderRegistry
+from qgis.core import QGis, QgsApplication, QgsProviderRegistry, QgsAuthManager
 from qgis.utils import iface
 
 from PyQt4.QtCore import QSettings
@@ -49,7 +49,7 @@ def allQgisInfo():
     info.update(qgisSettingsInfo())
     info.update(qgisPluginsInfo())
     info.update(qgisProvidersInfo())
-    info.update(authPluginKeys())
+    info.update(qgisAuthPluginsInfo())
 
     return info
 
@@ -189,7 +189,7 @@ def qgisPluginsInfo():
 
 
 def qgisAuthPluginsInfo():
-    """Returns information about available QGIS authentication plugins.
+    """Returns information about available QGIS authentication method plugins.
     """
 
     found = True
@@ -200,9 +200,9 @@ def qgisAuthPluginsInfo():
             authPluginKeys = QgsAuthManager.instance().authMethodsKeys()
         except:
             found = False
-            authPluginKeys = ["Could not load QGIS authentication plugins"]
+            authPluginKeys = ["Could not load QGIS authentication method plugins"]
     else:
-        authPluauthPluginKeysgins = QgsAuthManager.instance().authMethodsKeys()
+        authPluginKeys = QgsAuthManager.instance().authMethodsKeys()
 
     if found:
         authPluginsInfo = []
@@ -212,4 +212,4 @@ def qgisAuthPluginsInfo():
     else:
         authPluginsInfo = authPluginKeys
 
-    return {"QGIS authentication plugins": {"Available QGIS data provider plugins": authPluginsInfo}}
+    return {"QGIS authentication methods": {"Available QGIS authentication plugins": authPluginsInfo}}
