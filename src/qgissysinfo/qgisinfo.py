@@ -185,3 +185,30 @@ def qgisPluginsInfo():
                 "Available Python plugins": availablePythonPlugins,
                 "Active Python plugins": activePythonPlugins,
                 "Active C++ plugins": activeCppPlugins}}
+
+
+def qgisAuthPluginsInfo():
+    """Returns information about available QGIS authentication plugins.
+    """
+
+    found = True
+    if iface is None:
+        try:
+            app = QgsApplication(sys.argv, False)
+            app.initQgis()
+            authPluginKeys = QgsAuthManager.instance().authMethodsKeys()
+        except:
+            found = False
+            authPluginKeys = ["Could not load QGIS authentication plugins"]
+    else:
+        authPluauthPluginKeysgins = QgsAuthManager.instance().authMethodsKeys()
+
+    if found:
+        authPluginsInfo = []
+        for key in authPluginKeys:
+            m = QgsAuthManager.instance().authMethod(key)
+            authPluginsInfo.append("{}: {}".format(key, m.displayDescription()))
+    else:
+        authPluginsInfo = authPluginKeys
+
+    return {"QGIS authentication plugins": {"Available QGIS data provider plugins": authPluginsInfo}}
