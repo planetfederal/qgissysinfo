@@ -49,6 +49,7 @@ def allQgisInfo():
     info.update(qgisSettingsInfo())
     info.update(qgisPluginsInfo())
     info.update(qgisProvidersInfo())
+    info.update(authPluginKeys())
 
     return info
 
