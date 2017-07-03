@@ -170,7 +170,7 @@ def _cpuInfo():
             info = "Not available"
     elif osType == "Darwin":
         try:
-            info = subprocess.check_output("sysctl -n machdep.cpu.brand_string", shell=True, universal_newlines=True).split(":")[1].strip()
+            info = subprocess.check_output("sysctl -n machdep.cpu.brand_string", shell=True, universal_newlines=True).strip()
         except subprocess.CalledProcessError, e:
             print "Could not get CPU brand: {}".format(e.output)
             info = "Not available"
