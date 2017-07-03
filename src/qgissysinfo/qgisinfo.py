@@ -35,10 +35,23 @@ for c in ("QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVar
 from qgis.core import QGis, QgsApplication, QgsProviderRegistry, QgsAuthManager
 from qgis.utils import iface
 
-from PyQt4.QtCore import QSettings
+from PyQt4.QtCore import QCoreApplication, QSettings
 
 
 reposGroup = "/Qgis/plugin-repos"
+
+
+def _qgisSettings():
+    """Returns reference to native QGIS settings
+    """
+    if sys.platform == "darwin":
+      QCoreApplication.setOrganizationName("QGIS")
+      # Domain is needed to find correct macOS native settings
+      QCoreApplication.setOrganizationDomain("qgis.org")
+      QCoreApplication.setApplicationName("QGIS2")
+      return QSettings()
+    else:
+      return QSettings("QGIS", "QGIS2")
 
 
 def allQgisInfo():
@@ -59,7 +72,7 @@ def qgisSettingsInfo():
     This information can be retrieved even if QGIS can not start.
     """
 
-    settings = QSettings("QGIS", "QGIS2")
+    settings = _qgisSettings()
 
     repos = []
     settings.beginGroup(reposGroup)
@@ -163,7 +176,7 @@ def qgisPluginsInfo():
             break
 
     activePythonPlugins = []
-    settings = QSettings("QGIS", "QGIS2")
+    settings = _qgisSettings()
     settings.beginGroup("PythonPlugins")
     for p in settings.childKeys():
         if settings.value(p, True, type=bool):
@@ -173,7 +186,7 @@ def qgisPluginsInfo():
         activePythonPlugins = ["There are no active Python plugins"]
 
     activeCppPlugins = []
-    settings = QSettings("QGIS", "QGIS2")
+    settings = _qgisSettings()
     settings.beginGroup("Plugins")
     for p in settings.childKeys():
         if settings.value(p, True, type=bool):
