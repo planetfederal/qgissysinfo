@@ -48,12 +48,13 @@ import sip
 for c in ("QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"):
     sip.setapi(c, 2)
 
-from PyQt4.Qt import PYQT_VERSION_STR
-from PyQt4.QtCore import QT_VERSION_STR
+from PyQt5.Qt import PYQT_VERSION_STR
+from PyQt5.QtCore import QT_VERSION_STR
 from sip import SIP_VERSION_STR
 
-from PyQt4.QtGui import QApplication, QImageReader
-from PyQt4.QtSql import QSqlDatabase
+from PyQt5.QtGui import QImageReader
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtSql import QSqlDatabase
 
 
 def allSystemInfo():
@@ -96,7 +97,7 @@ def pythonInfo():
         pipInfo = list()
         for i in freeze():
             pipInfo.append(i)
-    except ImportError, e:
+    except ImportError as e:
         pipInfo = ["Could not get PIP information: {}".format(e.output)]
 
     return {"Python information":{
@@ -165,13 +166,13 @@ def _cpuInfo():
     elif osType == "Linux":
         try:
             info = subprocess.check_output("cat /proc/cpuinfo | grep 'model name' | uniq", shell=True, universal_newlines=True).split(":")[1].strip()
-        except subprocess.CalledProcessError, e:
-            print "Could not get CPU brand: {}".format(e.output)
+        except subprocess.CalledProcessError as e:
+            print("Could not get CPU brand: {}".format(e.output))
             info = "Not available"
     elif osType == "Darwin":
         try:
             info = subprocess.check_output("sysctl -n machdep.cpu.brand_string", shell=True, universal_newlines=True).strip()
-        except subprocess.CalledProcessError, e:
-            print "Could not get CPU brand: {}".format(e.output)
+        except subprocess.CalledProcessError as e:
+            print("Could not get CPU brand: {}".format(e.output))
             info = "Not available"
     return info

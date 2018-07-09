@@ -26,20 +26,28 @@ __revision__ = '$Format:%H$'
 
 import os
 import sys
-import ConfigParser
+import configparser
 
 import sip
 for c in ("QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"):
     sip.setapi(c, 2)
 
-from qgis.core import QGis, QgsApplication, QgsProviderRegistry, QgsAuthManager
+from qgis.core import Qgis, QgsApplication, QgsProviderRegistry, QgsAuthManager
 from qgis.utils import iface
 
-from PyQt4.QtCore import QSettings
+from PyQt5.QtCore import QSettings
 
 
 reposGroup = "/Qgis/plugin-repos"
 
+def _profilePath():
+    if os.name == 'nt':
+        return os.path.expanduser('~/AppData/Roaming/QGIS/QGIS3/profiles/default')
+    else:
+        return os.path.expanduser('~/.local/share/QGIS/QGIS3/profiles/default')    
+
+def _settings():
+    return QSettings(os.path.join(_profilePath(), "QGIS", "QGIS3.ini"), QSettings.IniFormat)
 
 def allQgisInfo():
     """Returns all possible QGIS information.
@@ -59,7 +67,7 @@ def qgisSettingsInfo():
     This information can be retrieved even if QGIS can not start.
     """
 
-    settings = QSettings("QGIS", "QGIS2")
+    settings = _settings()
 
     repos = []
     settings.beginGroup(reposGroup)
@@ -123,7 +131,7 @@ def qgisMainInfo():
         libExecPath = QgsApplication.libexecPath()
         pkgDataPath = QgsApplication.pkgDataPath()
 
-    return {"QGIS information": {"QGIS version": "{} ({})".format(QGis.QGIS_VERSION, QGis.QGIS_DEV_VERSION),
+    return {"QGIS information": {"QGIS version": "{} ({})".format(Qgis.QGIS_VERSION, Qgis.QGIS_DEV_VERSION),
                                  "QGIS prefix path": prefixPath,
                                  "QGIS library path": libraryPath,
                                  "QGIS lib exec path": libExecPath,
@@ -135,7 +143,8 @@ def qgisPluginsInfo():
     """Returns installed Python plugins, their versions and locations.
     Also returns list of active plugins (both core and Python).
     """
-    cfg = ConfigParser.SafeConfigParser()
+    cfg = configparser.SafeConfigParser()
+
 
     pluginPaths = []
     if iface is None:
@@ -143,12 +152,12 @@ def qgisPluginsInfo():
             app = QgsApplication(sys.argv, False)
             app.initQgis()
             pluginPaths.append(app.pkgDataPath())
-            pluginPaths.append(os.path.split(app.qgisUserDbFilePath())[0])
+            pluginPaths.append(os.path.split(app.qgisUserDatabaseFilePath())[0])
         except:
-            pluginPaths.append(os.path.join(os.path.expanduser("~"), ".qgis2"))
+            pluginPaths.append(_profilePath())
     else:
         pluginPaths.append(QgsApplication.pkgDataPath())
-        pluginPaths.append(os.path.split(QgsApplication.qgisUserDbFilePath())[0])
+        pluginPaths.append(os.path.split(QgsApplication.qgisUserDatabaseFilePath())[0])
 
     pluginPaths = [os.path.join(str(p), "python", "plugins") for p in pluginPaths]
 
@@ -163,7 +172,7 @@ def qgisPluginsInfo():
             break
 
     activePythonPlugins = []
-    settings = QSettings("QGIS", "QGIS2")
+    settings = _settings()
     settings.beginGroup("PythonPlugins")
     for p in settings.childKeys():
         if settings.value(p, True, type=bool):
@@ -173,7 +182,7 @@ def qgisPluginsInfo():
         activePythonPlugins = ["There are no active Python plugins"]
 
     activeCppPlugins = []
-    settings = QSettings("QGIS", "QGIS2")
+    settings = _settings()
     settings.beginGroup("Plugins")
     for p in settings.childKeys():
         if settings.value(p, True, type=bool):
@@ -197,17 +206,17 @@ def qgisAuthPluginsInfo():
         try:
             app = QgsApplication(sys.argv, False)
             app.initQgis()
-            authPluginKeys = QgsAuthManager.instance().authMethodsKeys()
+            authPluginKeys = QgsApplication.authManager().authMethodsKeys()
         except:
             found = False
             authPluginKeys = ["Could not load QGIS authentication method plugins"]
     else:
-        authPluginKeys = QgsAuthManager.instance().authMethodsKeys()
+        authPluginKeys = QgsApplication.authManager().authMethodsKeys()
 
     if found:
         authPluginsInfo = []
         for key in authPluginKeys:
-            m = QgsAuthManager.instance().authMethod(key)
+            m = QgsApplication.authManager().authMethod(key)
             authPluginsInfo.append("{}: {}".format(key, m.displayDescription()))
     else:
         authPluginsInfo = authPluginKeys

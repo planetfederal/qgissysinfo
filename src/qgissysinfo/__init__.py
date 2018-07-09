@@ -1,7 +1,7 @@
 import os
 
-import systeminfo
-import qgisinfo
+import qgissysinfo.systeminfo
+import qgissysinfo.qgisinfo
 
 
 def info():
@@ -13,7 +13,7 @@ def info():
 def _as_text(o, level = 0):
     if isinstance(o, dict):
         s = ""
-        for key,value in o.iteritems():
+        for key,value in o.items():
             s += ("\t" * level)
             s += "-" + key + os.linesep
             s += _as_text(value, level + 1)
