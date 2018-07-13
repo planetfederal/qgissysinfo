@@ -56,4 +56,4 @@ def createReport():
 if __name__ == '__main__' and __package__ is None:
     os.sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     report, filePath = createReport()
-    print "Report saved to {}".format(filePath)
+    print ("Report saved to {}".format(filePath))
