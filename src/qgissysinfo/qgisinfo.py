@@ -32,22 +32,34 @@ import sip
 for c in ("QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"):
     sip.setapi(c, 2)
 
-from qgis.core import Qgis, QgsApplication, QgsProviderRegistry, QgsAuthManager
+from qgis.core import Qgis, QgsApplication, QgsProviderRegistry, QgsAuthManager, QgsUserProfileManager
 from qgis.utils import iface
 
 from PyQt5.QtCore import QSettings
 
+reposGroup = "/app/plugin_repositories"
 
-reposGroup = "/Qgis/plugin-repos"
 
-def _profilePath():
-    if os.name == 'nt':
-        return os.path.expanduser('~/AppData/Roaming/QGIS/QGIS3/profiles/default')
+def _allProfiles():
+    return _profileManager().allProfiles()
+
+def _profileManager():
+    return QgsUserProfileManager(_profilesPath())
+
+def _profilesPath():
+    if iface is None:
+        if os.name == 'nt':
+            return '~/AppData/Roaming/QGIS/QGIS3/profiles/default'
+        else:
+              return '~/.local/share/QGIS/QGIS3/profiles/default' 
     else:
-        return os.path.expanduser('~/.local/share/QGIS/QGIS3/profiles/default')    
+        return os.path.dirname(os.path.dirname(QgsApplication.qgisSettingsDirPath()))
 
-def _settings():
-    return QSettings(os.path.join(_profilePath(), "QGIS", "QGIS3.ini"), QSettings.IniFormat)
+def _profilePath(profile):
+    return os.path.join(_profilesPath(), profile)
+
+def _settings(profile):
+    return QSettings(os.path.join(_profilePath(profile), "qgis.org", "QGIS3.ini"), QSettings.IniFormat)
 
 def allQgisInfo():
     """Returns all possible QGIS information.
@@ -61,29 +73,30 @@ def allQgisInfo():
 
     return info
 
-
 def qgisSettingsInfo():
     """Returns various bits of information from QGIS settings.
     This information can be retrieved even if QGIS can not start.
     """
 
-    settings = _settings()
+    allRepos = {}
+    for profile in _allProfiles():
+        settings = _settings(profile)
+        repos = []
+        settings.beginGroup(reposGroup)
+        for key in settings.childGroups():
+            repoUrl = settings.value(key + "/url", "", type=str)
+            authcfg = settings.value(key + "/authcfg", "", type=str)
+            isEnabled = settings.value(key + "/enabled", True, type=bool)
+            repos.append(
+                    "{name}: {url} ({enabled}, {auth})".format(
+                            name=key,
+                            url=repoUrl,
+                            enabled="enabled" if isEnabled else "disabled",
+                            auth="need auth" if authcfg != "" else "no auth"))
+        settings.endGroup()
+        allRepos[profile] = repos
 
-    repos = []
-    settings.beginGroup(reposGroup)
-    for key in settings.childGroups():
-        repoUrl = settings.value(key + "/url", "", type=str)
-        authcfg = settings.value(key + "/authcfg", "", type=str)
-        isEnabled = settings.value(key + "/enabled", True, type=bool)
-        repos.append(
-                "{name}: {url} ({enabled}, {auth})".format(
-                        name=key,
-                        url=repoUrl,
-                        enabled="enabled" if isEnabled else "disabled",
-                        auth="need auth" if authcfg != "" else "no auth"))
-    settings.endGroup()
-
-    return {"QGIS settings": {"Plugin repositories": repos}}
+    return {"QGIS settings": {"Plugin repositories": allRepos}}
 
 
 def qgisProvidersInfo():
@@ -144,20 +157,20 @@ def qgisPluginsInfo():
     Also returns list of active plugins (both core and Python).
     """
     cfg = configparser.SafeConfigParser()
-
-
     pluginPaths = []
     if iface is None:
         try:
             app = QgsApplication(sys.argv, False)
             app.initQgis()
             pluginPaths.append(app.pkgDataPath())
-            pluginPaths.append(os.path.split(app.qgisUserDatabaseFilePath())[0])
         except:
-            pluginPaths.append(_profilePath())
+            pass
+        for profile in _allProfiles():
+            pluginPaths.append(_profilePath(profile))   
     else:
         pluginPaths.append(QgsApplication.pkgDataPath())
-        pluginPaths.append(os.path.split(QgsApplication.qgisUserDatabaseFilePath())[0])
+        for profile in _allProfiles():
+            pluginPaths.append(_profilePath(profile))
 
     pluginPaths = [os.path.join(str(p), "python", "plugins") for p in pluginPaths]
 
@@ -171,30 +184,34 @@ def qgisPluginsInfo():
                 availablePythonPlugins.append("{} ({}) in {}".format(d, version, pluginPath))
             break
 
-    activePythonPlugins = []
-    settings = _settings()
-    settings.beginGroup("PythonPlugins")
-    for p in settings.childKeys():
-        if settings.value(p, True, type=bool):
-            activePythonPlugins.append(p)
-    settings.endGroup()
-    if len(activePythonPlugins) == 0:
-        activePythonPlugins = ["There are no active Python plugins"]
+    pluginsInfo = {}
+    for profile in _allProfiles():
+        activePythonPlugins = []
+        settings = _settings(profile)
+        settings.beginGroup("PythonPlugins")
+        for p in settings.childKeys():
+            if settings.value(p, True, type=bool):
+                activePythonPlugins.append(p)
+        settings.endGroup()
+        if len(activePythonPlugins) == 0:
+            activePythonPlugins = ["There are no active Python plugins"]
 
-    activeCppPlugins = []
-    settings = _settings()
-    settings.beginGroup("Plugins")
-    for p in settings.childKeys():
-        if settings.value(p, True, type=bool):
-            activeCppPlugins.append(p)
-    settings.endGroup()
-    if len(activeCppPlugins) == 0:
-        activeCppPlugins = ["There are no active C++ plugins"]
+        activeCppPlugins = []
+        settings = _settings(profile)
+        settings.beginGroup("Plugins")
+        for p in settings.childKeys():
+            if settings.value(p, True, type=bool):
+                activeCppPlugins.append(p)
+        settings.endGroup()
+        if len(activeCppPlugins) == 0:
+            activeCppPlugins = ["There are no active C++ plugins"]
 
-    return{"QGIS plugins":{
-                "Available Python plugins": availablePythonPlugins,
-                "Active Python plugins": activePythonPlugins,
-                "Active C++ plugins": activeCppPlugins}}
+        pluginsInfo[profile] = {"Active Python plugins": activePythonPlugins,
+                                "Active C++ plugins": activeCppPlugins}
+    
+    return {"QGIS plugins": {"Available Python plugins": availablePythonPlugins,
+                            "Active plugins by profile": pluginsInfo}}
+                    
 
 
 def qgisAuthPluginsInfo():
