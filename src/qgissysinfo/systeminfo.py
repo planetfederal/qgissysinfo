@@ -98,7 +98,7 @@ def pythonInfo():
         for i in freeze():
             pipInfo.append(i)
     except ImportError as e:
-        pipInfo = ["Could not get PIP information: {}".format(e.output)]
+        pipInfo = ["Could not get PIP information: {}".format(str(e))]
 
     return {"Python information":{
                 "Python implementation": platform.python_implementation(),
