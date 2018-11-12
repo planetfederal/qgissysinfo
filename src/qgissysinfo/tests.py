@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import qgisinfo
-import systeminfo
+from . import qgisinfo
+from . import systeminfo
 
 
 class QgisSysInfoTests(unittest.TestCase):
