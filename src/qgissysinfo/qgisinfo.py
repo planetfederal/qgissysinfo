@@ -210,7 +210,7 @@ def qgisPluginsInfo():
                                 "Active C++ plugins": activeCppPlugins}
     
     return {"QGIS plugins": {"Available Python plugins": availablePythonPlugins,
-                            "Active plugins by profile": pluginsInfo}}
+                            "Active Python plugins by profile": pluginsInfo}}
                     
 
 
