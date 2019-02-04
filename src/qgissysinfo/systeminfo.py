@@ -93,7 +93,10 @@ def pythonInfo():
     """Returns Python information.
     """
     try:
-        from pip.operations.freeze import freeze
+        try:
+            from pip.operations.freeze import freeze
+        except:
+            from pip._internal.operations.freeze import freeze
         pipInfo = list()
         for i in freeze():
             pipInfo.append(i)
