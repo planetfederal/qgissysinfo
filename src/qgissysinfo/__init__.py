@@ -14,8 +14,8 @@ def _as_text(o, level = 0):
     if isinstance(o, dict):
         s = ""
         for key,value in o.items():
-            s += ("\t" * level)
-            s += "-" + key + os.linesep
+            s += ("    " * level)
+            s += "* " + key + ":" + os.linesep
             s += _as_text(value, level + 1)
         return s
     elif isinstance(o, list):
@@ -24,7 +24,7 @@ def _as_text(o, level = 0):
             s += _as_text(item, level)
         return s
     else:
-        return ("\t" * level) + "-" + str(o) + os.linesep
+        return ("    " * level) + "* " + str(o) + os.linesep
 
 
 def info_as_text():

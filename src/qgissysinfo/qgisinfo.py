@@ -48,18 +48,26 @@ def _profileManager():
 
 def _profilesPath():
     if iface is None:
-        if os.name == 'nt':
-            return '~/AppData/Roaming/QGIS/QGIS3/profiles/default'
+        if sys.platform == 'darwin':
+            return "~/Library/Application Support/QGIS/QGIS3/profiles"
+        elif sys.platform == 'linux':
+            return "~/.local/share/QGIS/QGIS3/profiles"
         else:
-              return '~/.local/share/QGIS/QGIS3/profiles/default' 
+            return "~/AppData/Roaming/QGIS/QGIS3/profiles"
     else:
         return os.path.dirname(os.path.dirname(QgsApplication.qgisSettingsDirPath()))
 
 def _profilePath(profile):
     return os.path.join(_profilesPath(), profile)
 
+def _settingsFile(profile):
+    path = os.path.join(_profilePath(profile), "QGIS", "QGIS3.ini")
+    if not os.path.exists(path):
+        path = os.path.join(_profilePath(profile), "qgis.org", "QGIS3.ini")
+    return path
+
 def _settings(profile):
-    return QSettings(os.path.join(_profilePath(profile), "qgis.org", "QGIS3.ini"), QSettings.IniFormat)
+    return QSettings(_settingsFile(profile), QSettings.IniFormat)
 
 def allQgisInfo():
     """Returns all possible QGIS information.
@@ -79,8 +87,10 @@ def qgisSettingsInfo():
     """
 
     allRepos = {}
+    settingFiles = {}
     for profile in _allProfiles():
         settings = _settings(profile)
+        settingFiles[profile] = _settingsFile(profile)
         repos = []
         settings.beginGroup(reposGroup)
         for key in settings.childGroups():
@@ -96,7 +106,9 @@ def qgisSettingsInfo():
         settings.endGroup()
         allRepos[profile] = repos
 
-    return {"QGIS settings": {"Plugin repositories": allRepos}}
+    return {"QGIS settings": [ 
+                    {"Settings INI files": settingFiles},
+                    {"Plugin repositories": allRepos}]}
 
 
 def qgisProvidersInfo():
@@ -175,6 +187,7 @@ def qgisPluginsInfo():
     pluginPaths = [os.path.join(str(p), "python", "plugins") for p in pluginPaths]
 
     availablePythonPlugins = []
+    availablePythonPluginNames = []
     for p in pluginPaths:
         for (root, dirs, files) in os.walk(p):
             for d in dirs:
@@ -182,6 +195,7 @@ def qgisPluginsInfo():
                 cfg.read(os.path.join(pluginPath, 'metadata.txt'))
                 version = cfg.get('general', 'version')
                 availablePythonPlugins.append("{} ({}) in {}".format(d, version, pluginPath))
+                availablePythonPluginNames.append(d)
             break
 
     pluginsInfo = {}
@@ -190,7 +204,7 @@ def qgisPluginsInfo():
         settings = _settings(profile)
         settings.beginGroup("PythonPlugins")
         for p in settings.childKeys():
-            if settings.value(p, True, type=bool):
+            if settings.value(p, True, type=bool) and p in availablePythonPluginNames:
                 activePythonPlugins.append(p)
         settings.endGroup()
         if len(activePythonPlugins) == 0:
